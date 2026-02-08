@@ -1,0 +1,73 @@
+Configuration:
+  name: HippodromeConfig
+  status: info
+
+  Properties:
+    Property:
+      - name: "LOG_DIR"
+        value: "logs"
+
+  Appenders:
+
+    # 1. КОНСОЛЬНЫЙ ВЫВОД (для отладки)
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+          pattern: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5level %logger: %msg%n"
+          charset: "windows-1251"  # Для русской Windows
+
+    # 2. ФАЙЛОВЫЙ ВЫВОД С РОТАЦИЕЙ
+    RollingFile:
+      name: File
+      fileName: "${LOG_DIR}/hippodrome.log"
+      filePattern: "${LOG_DIR}/hippodrome.%d{yyyy-MM-dd}.log"
+      PatternLayout:
+        pattern: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5level %logger: %msg%n"
+      Policies:
+        TimeBasedTriggeringPolicy:
+          modulate: true
+          interval: 1
+      DefaultRolloverStrategy:
+        Delete:
+          basePath: "${LOG_DIR}"
+          IfFileName:
+            glob: "hippodrome.*.log"
+          IfLastModified:
+            age: "7d"
+
+  Loggers:
+
+    # КОРНЕВОЙ ЛОГГЕР
+    Root:
+      level: info
+      AppenderRef:
+        - ref: Console   # Сначала в консоль для проверки
+        - ref: File
+
+    # НАСТРОЙКИ ДЛЯ ВАШИХ КЛАССОВ
+    Logger:
+
+      # Класс Main - только INFO
+      - name: "Main"
+        level: info
+        additivity: false
+        AppenderRef:
+          - ref: Console
+          - ref: File
+
+      # Класс Hippodrome - DEBUG и выше
+      - name: "Hippodrome"
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: Console
+          - ref: File
+
+      # Класс Horse - DEBUG и выше
+      - name: "Horse"
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: Console
+          - ref: File
